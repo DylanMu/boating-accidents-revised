@@ -1,0 +1,210 @@
+>>>malloy
+import 'boating-accidents.malloy'
+>>>markdown
+## Visualizations
+Below are five of the most important visualizations generated during the analysis:
+
+![Visualization 1](png\viz1-winddamage.png)
+- This shows how wind did not result in most damage. Surprisingly no wind caused most damage. Probably because more people were out in water during no wind.
+
+![Visualization 2](png\viz2-ageaddmitted.png)
+- Younger people were addmitted to hospital more often than older people.
+
+![Visualization 3](png\viz3-numlifejackets.png)
+- As bodies on board increase, so do number of life jackets available. This is good!
+
+![Visualization 4](png\viz4-weatherconsult.png)
+- Older people tend to consult weather prior to going out. Maybe the younger generation could learn from this.
+
+![Visualization 5](png\viz5-winddamage2023.png)
+- Opposite to results in 2009-2013, 2023 shows strong winds caused most damage, with no winds caused least damage.
+>>>markdown
+##### **1) Total Accidents by Day of Week**
+(Weekends have the most, while Tuesday seems to be safest day)
+>>>malloy
+run: `20092013Accidents` -> {
+    group_by: 
+        DayofWeekFormatted is concat(upper(substring!(DayofWeek,0,1)), lower(substring!(DayofWeek, 1)))
+    aggregate: total_accidents is count()
+    order_by: total_accidents desc
+}
+>>>markdown
+##### **2) Total Accidents by State (nest Year)**
+(Flordia has very bad drivers)
+>>>malloy
+run: `20092013Accidents` -> {
+    group_by: State
+    aggregate: total_accidents is count()
+    # line_chart { size=spark y.independent }
+    nest: by_year is {
+        group_by: `Year`
+        aggregate: total_accidents is count()
+        order_by: `Year`
+    }
+}
+>>>markdown
+##### **3) Total Deaths by Day/Night**
+(Exactly the same number of deaths during the day (-1) and night (0) )
+>>>malloy
+run: `20092013Accidents` -> {
+    group_by: DayNight
+    aggregate: total_deaths is count(NumberDeaths)
+    order_by: total_deaths desc
+    where: DayNight is not null
+}
+>>>markdown
+##### **4) Total Injuries by Body Part (nest Gender)**
+(Head is most common with males being -1 and females being 0)
+>>>malloy
+run: `20092013Injuries` -> {
+    group_by: InjuredBodyPart
+    aggregate: total_injuries is count()
+    # bar_chart
+    nest: by_gender is {
+        group_by: InjuredGender
+        aggregate: total_injuries is count()
+        where: InjuredGender is not null
+    }
+    order_by: total_injuries desc
+}
+>>>markdown
+##### **5) Total Injuries by Body Part (nest Admitted to Hospital)**
+(Head is most common with true being admitted and false being not admitted)
+>>>malloy
+run: `20092013Injuries` -> {
+    group_by: InjuredBodyPart
+    aggregate: total_injuries is count()
+    # bar_chart
+    nest: by_admittance is {
+        group_by: AdmittedtoHospital is AdmittedtoHospital = -1
+        aggregate: total_injuries is count()
+        where: AdmittedtoHospital is not null
+    }
+    order_by: total_injuries desc
+}
+>>>markdown
+##### **5) Total Deaths by Age (nest Cause)**
+(Drowning is a very common cause of death, followed by Trauma)
+>>>malloy
+run: `20092013Deaths` -> {
+    group_by: DeceasedAge
+    aggregate: total_deaths is count()
+    where: DeceasedAge is not null
+    # bar_chart { y.independent }
+    nest: by_cause is {
+        group_by: CauseofDeath
+        aggregate: total_cause is count()
+        limit: 2
+    }
+    order_by: total_deaths desc
+}
+>>>markdown
+##### **6) Water Conditions and Num Vessels Involved**
+(Calm water is most common, likely when boaters are out on the water)
+>>>malloy
+run: `20092013Accidents` -> {
+    group_by: 
+    WaterConditionsFormatted is concat(upper(substring!(WaterConditions,0,1)), lower(substring!(WaterConditions, 1)))
+    aggregate: NumVesselsInv is avg(NumberVesselsInvolved)
+    where: 
+    WaterConditions != "unknown",
+    WaterConditions != "UNKNOWN",
+    WaterConditions != "Unknown"
+}
+>>>markdown
+##### **7) Damage Amount by Wind Level**
+(Stronger winds would expect more damage to be done)
+>>>malloy
+# bar_chart
+run: `20092013Accidents` -> {
+    group_by: 
+    WindsFormatted is concat(upper(substring!(Wind,0,1)), lower(substring!(Wind, 1)))
+    aggregate: `Damage($)` is avg(TotalDamage)
+    where: 
+    Wind != "unknown",
+    Wind != "UNKNOWN",
+    Wind != "Unknown"
+}
+>>>markdown
+##### **8) Admitted to Hospital by Avg Age**
+(This surprised me, as I would have expected older folks to be admitted)
+>>>malloy
+run: `20092013Injuries` -> {
+    group_by: AdmittedtoHospital is AdmittedtoHospital = -1
+    aggregate: AvgAge is avg(InjuredAge)
+    where: AdmittedtoHospital is not null
+}
+>>>markdown
+##### **9) Number of Deaths compared to Num of Engines**
+(I'm surprised that no engines resulted in second highest number of deaths)
+>>>malloy
+# line_chart
+run: `20092013Vessels` -> {
+    group_by: NumberofEngines
+    aggregate: NumDeaths is count(NumberDeaths)
+    where: NumberofEngines is not null
+    order_by: NumberofEngines
+}
+>>>markdown
+##### **10) Number of People vs Num of Life Jackets**
+(Very good to see that as more people are onboard, generally more life jackets are available)
+>>>malloy
+# line_chart
+run: `20092013Vessels` -> {
+    group_by: NumberPeopleOnboard
+    aggregate: NumLifeJac is avg(NumberLifeJacketsOnboard)
+    order_by: NumberPeopleOnboard
+    where: 
+    NumberPeopleOnboard is not null,
+    NumberLifeJacketsOnboard is not null
+}
+>>>markdown
+##### **11) Training Org vs Num of Deaths**
+(People who did not go through proper training led to more deaths)
+>>>malloy
+run: `20092013Vessels` -> {
+    group_by: 
+    InternetTrainingOrganization is concat(upper(substring!(InternetTrainingOrganization,0,1)), lower(substring!(InternetTrainingOrganization, 1)))
+    aggregate: NumDeaths is count(NumberDeaths)
+    where: 
+    InternetTrainingOrganization != "unknown",
+    InternetTrainingOrganization != "Unknown",
+    InternetTrainingOrganization != "UNKNOWN"
+    order_by: NumDeaths desc
+}
+>>>markdown
+##### **12) Alcohol Use vs Num Deaths**
+(Operator Using Alcohol resulted in more deaths)
+>>>malloy
+# bar_chart
+run: `20092013Vessels` -> {
+    group_by: 
+    OperatorUsingAlcohol is concat(upper(substring!(OperatorUsingAlcohol,0,1)), lower(substring!(OperatorUsingAlcohol, 1)))
+    aggregate: NumDeaths is count(NumberDeaths)
+    where:
+    OperatorUsingAlcohol is not null,
+    OperatorUsingAlcohol != 'u'
+    order_by: NumDeaths desc
+}
+>>>markdown
+##### **13) Rented Boat vs Avg Damage**
+(Rental Boats did not have as much damage caused as owned ones)
+>>>malloy
+# bar_chart
+run: `20092013Vessels` -> {
+    group_by: RentedBoat is RentedBoat = -1
+    aggregate: DamagetoVessel is avg(DamagetoVessel)
+    where: RentedBoat is not null
+}
+>>>markdown
+##### **14) Weather Consultation vs Age**
+(Older Operators have more change of consulting weather)
+>>>malloy
+run: `20092013Vessels` -> {
+    group_by: 
+    WeatherReportsConsulted is concat(upper(substring!(WeatherReportsConsulted,0,1)), lower(substring!(WeatherReportsConsulted, 1)))
+    aggregate: Age is avg(OperatorAge)
+    where: 
+    WeatherReportsConsulted is not null,
+    OperatorAge is not null
+}

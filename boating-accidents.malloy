@@ -1,0 +1,50 @@
+-- 2009 - 2013 Import and Join Data
+source: `20092013Deaths` is duckdb.table('Parquet/bard-2009-2013-ReleasableDeaths.parquet') extend{
+    primary_key: BARDID
+}
+source: `20092013Injuries` is duckdb.table('Parquet/bard-2009-2013-ReleasableInjuries.parquet') extend{
+    primary_key: BARDID
+}
+source: `20092013Vessels` is duckdb.table('Parquet/bard-2009-2013-ReleasableVessels.parquet') extend{
+    primary_key: BARDID
+}
+source: `20092013Accidents` is duckdb.table('Parquet/bard-2009-2013-ReleasableAccidents.parquet') extend{
+    primary_key: BARDID
+    join_one: `20092013Deaths` with BARDID
+    join_one: `20092013Injuries` with BARDID
+    join_one: `20092013Vessels` with BARDID
+}
+
+-- 2014 - 2022 Import and Join Data
+source: `20142022Deaths` is duckdb.table('Parquet/bard-2014-2022-ReleasableDeaths.parquet') extend{
+    primary_key: BARDID
+}
+source: `20142022Injuries` is duckdb.table('Parquet/bard-2014-2022-ReleasableInjuries.parquet') extend{
+    primary_key: BARDID
+}
+source: `20142022Vessels` is duckdb.table('Parquet/bard-2014-2022-ReleasableVessels.parquet') extend{
+    primary_key: BARDID
+}
+source: `20142022Accidents` is duckdb.table('Parquet/bard-2014-2022-ReleasableAccidentes.parquet') extend{
+    primary_key: BARDID
+    join_one: `20142022Deaths` with BARDID
+    join_one: `20142022Injuries` with BARDID
+    join_one: `20142022Vessels` with BARDID
+}
+
+-- 2023 - 2023 Import and Join Data
+source: `2023Deaths` is duckdb.table('Parquet/bard-2023-2023-ReleasableDeaths.parquet') extend{
+    primary_key: BARDID
+}
+source: `2023Injuries` is duckdb.table('Parquet/bard-2023-2023-ReleasableInjuries.parquet') extend{
+    primary_key: BARDID
+}
+source: `2023Vessels` is duckdb.table('Parquet/bard-2023-2023-ReleasableVessels.parquet') extend{
+    primary_key: BARDID
+}
+source: `2023Accidents` is duckdb.table('Parquet/bard-2023-2023-ReleasableAccidents.parquet') extend{
+    primary_key: BARDID
+    join_one: `2023Deaths` with BARDID
+    join_one: `2023Injuries` with BARDID
+    join_one: `2023Vessels` with BARDID
+}
