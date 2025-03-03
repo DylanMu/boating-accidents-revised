@@ -38,19 +38,19 @@ These files contain all data transformations, visualizations, and queries used i
 ## Visualizations
 Below are five of the most important visualizations generated during the analysis:
 
-![Visualization 1](png\viz1-winddamage.png)
+![Visualization 1](png/viz1-winddamage.png)
 - This shows how wind did not result in most damage. Surprisingly no wind caused most damage. Probably because more people were out in water during no wind.
 
-![Visualization 2](png\viz2-ageaddmitted.png)
+![Visualization 2](png/viz2-ageaddmitted.png)
 - Younger people were addmitted to hospital more often than older people.
 
-![Visualization 3](png\viz3-numlifejackets.png)
+![Visualization 3](png/viz3-numlifejackets.png)
 - As bodies on board increase, so do number of life jackets available. This is good!
 
-![Visualization 4](png\viz4-weatherconsult.png)
+![Visualization 4](png/viz4-weatherconsult.png)
 - Older people tend to consult weather prior to going out. Maybe the younger generation could learn from this.
 
-![Visualization 5](png\viz5-winddamage2023.png)
+![Visualization 5](png/viz5-winddamage2023.png)
 - Opposite to results in 2009-2013, 2023 shows strong winds caused most damage, with no winds caused least damage.
 
 ## Licensing
